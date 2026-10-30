@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart E-Mobility Hub — 23 Use Case Diagrams</title>
+<link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="eyebrow">Software Engineering · Submission #2</div>
+    <h1>Smart E-Mobility Hub — Diagram Studio</h1>
+    <div class="subtitle">Sequence diagrams, activity diagrams, and state-chart diagrams for the 23 use cases in the latest supplied specification. Self-contained HTML; no internet connection or external libraries required.</div>
+    <div class="stats">
+      <span class="stat"><b>23</b> Use Cases</span>
+      <span class="stat"><b>69</b> Diagrams</span>
+      <span class="stat">3 diagram types per Use Case</span>
+      <span class="stat">Built from the attached 23-UC specification</span>
+    </div>
+  </div>
+</header>
+<div class="toolbar no-print">
+  <input id="search" class="search" type="search" placeholder="Search use case, actor, or keyword…" aria-label="Search use cases">
+  <select id="categoryFilter" aria-label="Filter by subsystem"><option value="">All subsystems</option></select>
+  <button id="galleryBtn" class="btn">Browse all 23 / 69 diagrams</button>
+  <button id="printBtn" class="btn">Print current view</button>
+</div>
+<div class="shell">
+  <aside class="no-print">
+    <div class="side-title">Use Case Navigator <span id="navCount"></span></div>
+    <nav id="navList" aria-label="Use cases"></nav>
+  </aside>
+  <main class="main" id="main">
+    <div id="singleView" class="card">
+      <div class="uc-head">
+        <div class="uc-head-row">
+          <div>
+            <div class="uc-kicker" id="ucKicker"></div>
+            <h2 id="ucTitle"></h2>
+          </div>
+          <div class="pill-row" id="ucPills"></div>
+        </div>
+        <p class="goal" id="ucGoal"></p>
+      </div>
+      <div class="meta-grid" id="metaGrid"></div>
+      <div class="tabs no-print" role="tablist" aria-label="Diagram type">
+        <button class="tab active" data-tab="sequence" role="tab" aria-selected="true">Sequence Diagram</button>
+        <button class="tab" data-tab="activity" role="tab" aria-selected="false">Activity Diagram</button>
+        <button class="tab" data-tab="state" role="tab" aria-selected="false">State-chart Diagram</button>
+      </div>
+      <div class="diagram-toolbar">
+        <div><b id="diagramTitle">Sequence Diagram</b><div class="hint" id="diagramHint"></div></div>
+        <div class="no-print" style="display:flex;gap:7px;flex-wrap:wrap">
+          <button id="exportBtn" class="btn">Export current SVG</button>
+          <button id="prevBtn" class="btn">← Previous UC</button>
+          <button id="nextBtn" class="btn">Next UC →</button>
+        </div>
+      </div>
+      <div id="diagramWrap" class="diagram-wrap"></div>
+      <div id="stateCaveat" class="state-caveat" hidden></div>
+      <section id="branchNotes" class="branch-notes"></section>
+      <div class="details">
+        <details id="sourceDetails">
+          <summary>Show complete source scenario for this Use Case</summary>
+          <div id="sourceBlock" class="source-block"></div>
+        </details>
+      </div>
+    </div>
+    <div id="galleryView" hidden></div>
+  </main>
+</div>
+<div class="footer">
+  Diagram interpretation note: Sequence participants such as “service” and “records” are logical interaction roles, not a prescribed software architecture. State-chart states are explicitly labeled as inferred workflow states where the source does not define a formal state machine. Check all model assumptions against your team’s final diagram and requirements before submission.
+</div>
+
+<script>window.SMART_MOBILITY_UCS = [];</script>
+<script defer src="./js/data/UC-001.js"></script>
+<script defer src="./js/data/UC-002.js"></script>
+<script defer src="./js/data/UC-003.js"></script>
+<script defer src="./js/data/UC-004.js"></script>
+<script defer src="./js/data/UC-005.js"></script>
+<script defer src="./js/data/UC-006.js"></script>
+<script defer src="./js/data/UC-007.js"></script>
+<script defer src="./js/data/UC-008.js"></script>
+<script defer src="./js/data/UC-009.js"></script>
+<script defer src="./js/data/UC-010.js"></script>
+<script defer src="./js/data/UC-011.js"></script>
+<script defer src="./js/data/UC-012.js"></script>
+<script defer src="./js/data/UC-013.js"></script>
+<script defer src="./js/data/UC-014.js"></script>
+<script defer src="./js/data/UC-015.js"></script>
+<script defer src="./js/data/UC-016.js"></script>
+<script defer src="./js/data/UC-017.js"></script>
+<script defer src="./js/data/UC-018.js"></script>
+<script defer src="./js/data/UC-019.js"></script>
+<script defer src="./js/data/UC-020.js"></script>
+<script defer src="./js/data/UC-021.js"></script>
+<script defer src="./js/data/UC-022.js"></script>
+<script defer src="./js/data/UC-023.js"></script>
+<script defer src="./js/shared.js"></script>
+<script defer src="./js/renderers/activity-flow.js"></script>
+<script defer src="./js/renderers/sequence.js"></script>
+<script defer src="./js/renderers/activity.js"></script>
+<script defer src="./js/renderers/state.js"></script>
+<script defer src="./js/app.js"></script>
+</body>
+</html>
