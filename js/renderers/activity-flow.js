@@ -37,8 +37,8 @@ function activityFlow(u){
   });
   return {
     steps,
-    decisionIndex:model.decisionIndex,
-    decisionText:model.decisionText,
+    decisionIndex:model.decisionIndex ?? u.decisionIndex,
+    decisionText:model.decisionText ?? u.decisionText,
     secondaryDecisionIndex:model.secondaryDecisionIndex,
     secondaryDecisionText:model.secondaryDecisionText,
     secondaryRetryIndex:model.secondaryRetryIndex,
