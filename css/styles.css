@@ -53,10 +53,11 @@ aside{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;backg
 .tab.active{color:#214f98;border-bottom-color:#3568b8}
 .diagram-toolbar{padding:13px 22px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;background:#fbfcfe;border-bottom:1px solid #e7edf6}
 .diagram-toolbar .hint{font-size:11px;color:#71829b}
-.diagram-wrap{padding:12px 15px 18px;min-width:0;overflow:auto;background:#fff}
+.diagram-wrap{padding:12px 15px 18px;min-width:0;overflow:visible;background:#fff}
 .diagram-wrap svg{display:block;width:100%;height:auto;max-width:100%;min-width:0}
 .diagram-wrap{overscroll-behavior-x:contain}
 .diagram-svg{shape-rendering:geometricPrecision}
+.diagram-wrap svg[data-diagram-type="sequence"]{width:100%;max-width:100%;height:auto}
 .gallery-subdetails .diagram-wrap svg{width:100%;max-width:100%;min-width:0}
 @media print{.diagram-wrap svg{width:100%;max-width:100%;min-width:0;height:auto}}
 .branch-notes{padding:0 22px 22px}

@@ -52,19 +52,19 @@ window.SMART_MOBILITY_UCS.push({
     {
       "code": "A2",
       "title": "Operator declines the recommendation",
-      "description": "The operator chooses not to apply the selected recommendation. The system leaves operational resource states unchanged and returns to the simulation results."
+      "description": "The operator declines at the confirmation step. The system records the recommendation as declined, leaves operational resource states unchanged, and returns to the simulation results."
     }
   ],
   "exceptions": [
     {
       "code": "E1",
       "title": "Current network state has changed",
-      "description": "If current conditions make the recommendation invalid, the system does not apply it and informs the operator that the recommendation must be reviewed or simulated again."
+      "description": "If current conditions make the recommendation invalid, the system does not apply it and informs the operator that it must be reviewed or simulated again. The operator can choose another recommendation or return to the results."
     },
     {
       "code": "E2",
       "title": "Recommendation application fails",
-      "description": "The system displays an error and does not report the recommendation as applied. The operator may retry or coordinate an alternative action."
+      "description": "If the applicable operational workflow cannot be initiated, the system displays an error and does not report the recommendation as applied. The operator may retry or coordinate an alternative action."
     }
   ],
   "sourceTitle": "UC-022: Apply Coordination Recommendations",
@@ -76,7 +76,9 @@ window.SMART_MOBILITY_UCS.push({
       "Strategic Simulation Operator",
       "Simulation UI",
       "Recommendation Service",
-      "Operational Workflow / Live State"
+      "Live Operational State",
+      "Operational Workflow Service",
+      "Saved Simulation Results"
     ],
     "messages": [
       [
@@ -93,12 +95,12 @@ window.SMART_MOBILITY_UCS.push({
       ],
       [
         2,
-        3,
+        5,
         "Retrieve recommendations and affected resources",
         "call"
       ],
       [
-        3,
+        5,
         2,
         "Return recommendations and predicted benefits",
         "return"
@@ -153,12 +155,12 @@ window.SMART_MOBILITY_UCS.push({
       ],
       [
         2,
-        3,
+        4,
         "Start applicable operational workflow",
         "call"
       ],
       [
-        3,
+        4,
         2,
         "Return initiation/status information",
         "return"
@@ -175,6 +177,33 @@ window.SMART_MOBILITY_UCS.push({
         "Show outcome",
         "return"
       ]
+    ],
+    "branches": [
+      {
+        "title": "Live conditions changed; recommendation is no longer feasible",
+        "messages": [
+          [3, 2, "Return changed live conditions", "return"],
+          [2, 1, "Reject stale recommendation", "return"],
+          [1, 0, "Explain that review or a new simulation is needed", "return"]
+        ]
+      },
+      {
+        "title": "Operator declines at confirmation",
+        "messages": [
+          [0, 1, "Decline recommendation", "call"],
+          [1, 2, "Record declined decision; leave live resources unchanged", "call"],
+          [2, 1, "Return declined status", "return"],
+          [1, 0, "Return to simulation results", "return"]
+        ]
+      },
+      {
+        "title": "Operational workflow initiation fails",
+        "messages": [
+          [4, 2, "Return workflow initiation failure", "return"],
+          [2, 1, "Report failure; do not mark recommendation applied", "return"],
+          [1, 0, "Offer retry or coordination of an alternative action", "return"]
+        ]
+      }
     ]
   },
   "state": {
@@ -183,15 +212,16 @@ window.SMART_MOBILITY_UCS.push({
       "Recommendation Available",
       "Recommendation Selected",
       "Checking Live Feasibility",
-      "Recommendation Approved",
+      "Awaiting Operator Confirmation",
+      "Application Confirmed",
       "Workflow Initiated"
     ],
     "events": [
-      "Open results",
-      "Select recommendation",
-      "Current state supports action",
-      "Operator confirms",
-      "Start operational workflow"
+      "Operator selects a recommendation",
+      "System checks current network state",
+      "Recommendation remains feasible",
+      "Operator confirms application",
+      "Operational workflow is initiated"
     ],
     "branches": [
       {
@@ -207,10 +237,10 @@ window.SMART_MOBILITY_UCS.push({
         "terminal": true
       },
       {
-        "from": 3,
+        "from": 4,
         "label": "Workflow initiation fails",
         "name": "Application Failed",
-        "returnTo": 2
+        "returnTo": 3
       }
     ]
   },

@@ -26,9 +26,9 @@ window.SmartMobilityRenderers.renderActivity = (() => {
     }
 
     // Overall canvas and central main-flow column.
-    const W = 1120;
+    const W = 1400;
     const panelX = 18;
-    const panelW = 1084;
+    const panelW = 1364;
 
     const nodeX = 150;
     const nodeW = 820;
@@ -49,6 +49,13 @@ window.SmartMobilityRenderers.renderActivity = (() => {
     const decisionIndex = Number.isInteger(flow.decisionIndex)
       ? flow.decisionIndex
       : -1;
+
+    const retryFlows = {
+      "UC-020": { retryIndex: 2, errorText: "The system shows the operator which inputs need correction." },
+      "UC-021": { retryIndex: 2, errorText: "The system identifies missing or unavailable scenarios for reselection." },
+      "UC-022": { retryIndex: 2, errorText: "The system reports that the recommendation is no longer feasible." }
+    };
+    const retryFlow = retryFlows[u.id];
 
     const heights = flowSteps.map(st => {
       const lines = wrapAllWords(st.text, 88);
@@ -82,10 +89,19 @@ window.SmartMobilityRenderers.renderActivity = (() => {
       }
     }
 
+    const errorLines = retryFlow ? wrapAllWords(retryFlow.errorText, 38) : [];
+    const errorH = retryFlow ? Math.max(78, 26 + errorLines.length * 17) : 0;
+    const errorX = nodeX + nodeW + 42;
+    const errorW = W - errorX - 36;
+    const retryTarget = retryFlow ? positions[retryFlow.retryIndex] : null;
+    const errorY = retryFlow && decision
+      ? decision.cy - errorH / 2
+      : 0;
+
     const last = positions[positions.length - 1];
 
     const endY = last.y + last.h + 42;
-    const mainBottom = endY + 34;
+    const mainBottom = Math.max(endY + 34, retryFlow ? errorY + errorH + 28 : 0);
 
     // Alternative and exception cards.
     const inner = 24;
@@ -216,7 +232,7 @@ window.SmartMobilityRenderers.renderActivity = (() => {
       />
 
       <path
-        d="M${center} 79 V${top - 13}"
+        d="M${center} 79 V${top}"
         stroke="#637b9c"
         stroke-width="1.8"
         fill="none"
@@ -296,7 +312,7 @@ window.SmartMobilityRenderers.renderActivity = (() => {
         // Connector from activity box to decision.
         out += `
           <path
-            d="M${center} ${bottom} V${dTop - 12}"
+            d="M${center} ${bottom} V${dTop}"
             stroke="#637b9c"
             stroke-width="1.8"
             fill="none"
@@ -320,10 +336,11 @@ window.SmartMobilityRenderers.renderActivity = (() => {
         `;
 
         out += svgTextCentered(
-          center,
+          center - decision.halfW - 22,
           decision.cy,
           flow.decisionText || "Does the condition pass?",
           {
+            anchor: "end",
             size: 11.5,
             weight: 850,
             fill: "#78531d",
@@ -338,7 +355,7 @@ window.SmartMobilityRenderers.renderActivity = (() => {
           // YES branch continues vertically.
           out += `
             <path
-              d="M${center} ${decision.cy + decision.halfH} V${next.y - 13}"
+              d="M${center} ${decision.cy + decision.halfH} V${next.y}"
               stroke="#477f62"
               stroke-width="1.9"
               fill="none"
@@ -357,49 +374,22 @@ window.SmartMobilityRenderers.renderActivity = (() => {
           `;
         }
 
-        // NO branch: one short connector to one callout.
-        // There is intentionally no line beyond the callout.
-        const calloutX = 755;
-        const calloutW = 285;
-        const calloutH = 36;
-
-        const calloutY = decision.cy - calloutH / 2;
-        const rightVertex = center + decision.halfW;
-
-        out += `
-          <path
-            d="M${rightVertex + 3} ${decision.cy} H${calloutX - 10}"
-            stroke="#b77724"
-            stroke-width="1.7"
-            stroke-dasharray="6 5"
-            fill="none"
-            marker-end="url(#arrBranch)"
-          />
-
-          <rect
-            x="${calloutX}"
-            y="${calloutY}"
-            width="${calloutW}"
-            height="${calloutH}"
-            rx="8"
-            fill="#fffaf3"
-            stroke="#e8c995"
-            stroke-width="1.2"
-          />
-        `;
-
-        out += svgTextCentered(
-          calloutX + calloutW / 2,
-          decision.cy,
-          "NO — see A/E branches below",
-          {
-            size: 11,
-            weight: 850,
-            fill: "#98641a",
-            max: 34,
-            lineH: 13
-          }
-        );
+        if (!retryFlow) {
+          const calloutX = 755;
+          const calloutW = 285;
+          const calloutH = 36;
+          const calloutY = decision.cy - calloutH / 2;
+          const rightVertex = center + decision.halfW;
+          out += `
+            <path d="M${rightVertex} ${decision.cy} H${calloutX}"
+              stroke="#b77724" stroke-width="1.7" fill="none" marker-end="url(#arrBranch)"/>
+            <rect x="${calloutX}" y="${calloutY}" width="${calloutW}" height="${calloutH}"
+              rx="8" fill="#fffaf3" stroke="#e8c995" stroke-width="1.2"/>
+          `;
+          out += svgTextCentered(calloutX + calloutW / 2, decision.cy, "NO — see A/E branches below", {
+            size: 11, weight: 850, fill: "#98641a", max: 34, lineH: 13
+          });
+        }
 
       } else if (i < flowSteps.length - 1) {
         const next = positions[i + 1];
@@ -407,7 +397,7 @@ window.SmartMobilityRenderers.renderActivity = (() => {
         // Normal connector between activities.
         out += `
           <path
-            d="M${center} ${bottom} V${next.y - 13}"
+            d="M${center} ${bottom} V${next.y}"
             stroke="#637b9c"
             stroke-width="1.75"
             fill="none"
@@ -417,11 +407,37 @@ window.SmartMobilityRenderers.renderActivity = (() => {
       }
     }
 
+    if (retryFlow && decision && retryTarget) {
+      const rightVertex = center + decision.halfW;
+      const errorCenterY = errorY + errorH / 2;
+      const turnX = errorX - 18;
+      const returnX = errorX + errorW / 2;
+      const targetCenterY = retryTarget.y + retryTarget.h / 2;
+
+      // Invalid/NO is a solid path to the correction node. The dashed path
+      // returns from that node to the operator's input activity.
+      out += `
+        <path d="M${rightVertex} ${decision.cy} H${turnX} V${errorCenterY} H${errorX}"
+          stroke="#637b9c" stroke-width="1.8" fill="none" marker-end="url(#arrCall)"/>
+        <text x="${rightVertex + 18}" y="${decision.cy - 12}" font-size="10.8" font-weight="850" fill="#9a5838">NO / invalid</text>
+        <rect x="${errorX}" y="${errorY}" width="${errorW}" height="${errorH}"
+          rx="12" fill="#fff0f2" stroke="#d99aa5" stroke-width="1.5"/>
+      `;
+      out += svgTextCentered(errorX + errorW / 2, errorCenterY, retryFlow.errorText, {
+        size: 12, weight: 700, fill: "#87414d", max: 37, lineH: 15
+      });
+
+      out += `
+        <path d="M${returnX} ${errorY} V${targetCenterY} H${nodeX + nodeW}"
+          stroke="#b77724" stroke-width="1.8" stroke-dasharray="7 5" fill="none" marker-end="url(#arrBranch)"/>
+      `;
+    }
+
     // Final node.
     // Arrow stops before the outer circle of the final-state marker.
     out += `
       <path
-        d="M${center} ${last.y + last.h} V${endY - 12}"
+        d="M${center} ${last.y + last.h} V${endY - 9.5}"
         stroke="#637b9c"
         stroke-width="1.75"
         fill="none"

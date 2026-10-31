@@ -55,12 +55,12 @@ window.SMART_MOBILITY_UCS.push({
     {
       "code": "E1",
       "title": "Scenario inputs are invalid or incomplete",
-      "description": "The system identifies the input that needs correction and allows the operator to revise the scenario."
+      "description": "The system identifies missing or invalid fields. The operator corrects the inputs and resubmits them; the system repeats validation before simulation."
     },
     {
       "code": "E2",
       "title": "Simulation cannot be completed",
-      "description": "If the baseline data or simulation service is unavailable, the system displays an error and does not present incomplete results as a successful simulation."
+      "description": "If the selected baseline data or simulation service is unavailable, the system displays an error, does not present incomplete results as successful, and allows retry after the issue is resolved."
     }
   ],
   "sourceTitle": "UC-020: Run a What-if Simulation",
@@ -84,67 +84,121 @@ window.SMART_MOBILITY_UCS.push({
       [
         1,
         2,
-        "Request scenario inputs and baseline state",
+        "Request scenario type, baseline choice, and parameters",
         "call"
       ],
       [
         2,
         3,
-        "Load selected/current baseline and scenario options",
+        "Load operator-selected current or saved baseline and scenario options",
         "call"
       ],
       [
         3,
         2,
-        "Return baseline and options",
+        "[Failure: selected baseline unavailable] Return baseline load error",
         "return"
       ],
       [
         2,
         1,
-        "Display scenario setup",
+        "[Failure: baseline unavailable] Report that simulation cannot start",
+        "return"
+      ],
+      [
+        1,
+        0,
+        "[Failure: baseline unavailable] Show error; allow retry after recovery",
+        "return"
+      ],
+      [
+        3,
+        2,
+        "[If baseline loads] Return baseline and scenario options",
+        "return"
+      ],
+      [
+        2,
+        1,
+        "Display scenario options and selected baseline summary",
+        "return"
+      ],
+      [
+        1,
+        0,
+        "Display scenario setup to operator",
         "return"
       ],
       [
         0,
         1,
-        "Select scenario and enter assumptions/parameters",
+        "Select scenario type and baseline; enter assumptions/parameters",
         "call"
       ],
       [
         1,
         2,
-        "Submit scenario inputs",
+        "Submit scenario type, baseline ID, and assumptions/parameters",
         "call"
       ],
       [
         2,
         2,
-        "Validate scenario parameters",
+        "Validate required parameters and baseline compatibility",
         "self"
       ],
       [
         2,
-        3,
-        "Run network simulation",
-        "call"
-      ],
-      [
-        3,
-        2,
-        "Return predicted impacts and recommendations",
-        "return"
-      ],
-      [
-        2,
         1,
-        "Display simulation results",
+        "[Failure: invalid inputs] Return field-level validation errors",
         "return"
       ],
       [
         1,
         0,
-        "Show results for review",
+        "[Failure: invalid inputs] Show operator what to correct",
+        "return"
+      ],
+      [
+        2,
+        3,
+        "[If valid] Run simulation against the selected baseline",
+        "call"
+      ],
+      [
+        3,
+        2,
+        "[Failure: simulation service unavailable] Return service error; no results",
+        "return"
+      ],
+      [
+        2,
+        1,
+        "[Failure: simulation fails] Report failure; discard incomplete results",
+        "return"
+      ],
+      [
+        1,
+        0,
+        "[Failure: simulation fails] Show error and allow retry after recovery",
+        "return"
+      ],
+      [
+        3,
+        2,
+        "[If simulation completes] Return predicted impacts and recommendations",
+        "return"
+      ],
+      [
+        2,
+        1,
+        "Display predicted results and recommendations",
+        "return"
+      ],
+      [
+        1,
+        0,
+        "Show simulation results for review",
         "return"
       ]
     ]
