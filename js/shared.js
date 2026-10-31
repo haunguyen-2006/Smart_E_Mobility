@@ -50,10 +50,10 @@ function svgTextLines(x,yTop,lines,opts={}){
 let diagramSvgCounter=0;
 function arrowDefs(prefix){
  return `<defs>
-  <marker id="${prefix}-arrCall" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#365b91"/></marker>
-  <marker id="${prefix}-arrReturn" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#6e7d91"/></marker>
-  <marker id="${prefix}-arrBranch" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#b77724"/></marker>
-  <marker id="${prefix}-arrState" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#227a76"/></marker>
+  <marker id="${prefix}-arrCall" markerWidth="9" markerHeight="9" refX="9" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#365b91"/></marker>
+  <marker id="${prefix}-arrReturn" markerWidth="9" markerHeight="9" refX="9" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#6e7d91"/></marker>
+  <marker id="${prefix}-arrBranch" markerWidth="9" markerHeight="9" refX="9" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#b77724"/></marker>
+  <marker id="${prefix}-arrState" markerWidth="9" markerHeight="9" refX="9" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#227a76"/></marker>
  </defs>`;
 }
 function makeSvg(viewBox, contents, label){

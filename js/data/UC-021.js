@@ -43,7 +43,7 @@ window.SMART_MOBILITY_UCS.push({
     {
       "code": "A1",
       "title": "Fewer than two scenarios are available",
-      "description": "The system informs the operator that more completed scenarios are needed. The operator may run another simulation or leave the comparison screen."
+      "description": "The system explains that at least two completed scenarios are required. The operator may run another simulation and return to comparison, or leave the screen."
     },
     {
       "code": "A2",
@@ -55,12 +55,12 @@ window.SMART_MOBILITY_UCS.push({
     {
       "code": "E1",
       "title": "A selected result is unavailable",
-      "description": "The system identifies the unavailable result and asks the operator to select another completed scenario."
+      "description": "The system identifies the unavailable result and asks the operator to choose another completed scenario; the selection is validated again."
     },
     {
       "code": "E2",
       "title": "Comparison cannot be generated",
-      "description": "The system displays an error and does not present the incomplete comparison as successful."
+      "description": "The system displays an error and does not present an incomplete comparison as successful. The operator may retry generation or change the selection."
     }
   ],
   "sourceTitle": "UC-021: Compare What-if Scenarios",
@@ -106,9 +106,27 @@ window.SMART_MOBILITY_UCS.push({
         "return"
       ],
       [
+        1,
+        0,
+        "Display scenario list to operator",
+        "return"
+      ],
+      [
+        2,
+        1,
+        "[Failure: fewer than two completed scenarios] Report that more are needed",
+        "return"
+      ],
+      [
+        1,
+        0,
+        "[Failure: fewer than two completed scenarios] Offer run another simulation or leave",
+        "return"
+      ],
+      [
         0,
         1,
-        "Select two or more scenarios",
+        "Select two or more completed scenarios",
         "call"
       ],
       [
@@ -119,34 +137,103 @@ window.SMART_MOBILITY_UCS.push({
       ],
       [
         2,
+        1,
+        "[Failure: fewer than two selected] Explain comparison needs at least two results",
+        "return"
+      ],
+      [
+        2,
         3,
-        "Verify results and comparability",
+        "[If two or more scenarios are selected] Verify results and comparability",
         "call"
       ],
       [
         3,
         2,
-        "Return validation result",
+        "[If all selected results are available] Return validation result",
+        "return"
+      ],
+      [
+        3,
+        2,
+        "[Failure: selected result unavailable] Return unavailable-result status",
         "return"
       ],
       [
         2,
-        2,
-        "Compute side-by-side impact comparison",
-        "self"
-      ],
-      [
-        2,
         1,
-        "Display comparative impacts and recommendations",
+        "[Failure: selected result unavailable] Identify result and request replacement",
         "return"
       ],
       [
         1,
         0,
-        "Show comparison for review",
+        "[Failure: selected result unavailable] Ask operator to choose another scenario",
+        "return"
+      ],
+      [
+        2,
+        2,
+        "[If selected results are comparable] Compute side-by-side impact comparison",
+        "self"
+      ],
+      [
+        2,
+        1,
+        "[If comparison succeeds] Display comparative impacts and recommendations",
+        "return"
+      ],
+      [
+        1,
+        0,
+        "[If comparison succeeds] Show comparison for review",
+        "return"
+      ],
+      [
+        2,
+        2,
+        "[Failure: comparison generation fails] Return comparison error",
+        "self"
+      ],
+      [
+        2,
+        1,
+        "[Failure: comparison generation fails] Report error; do not show partial comparison",
+        "return"
+      ],
+      [
+        1,
+        0,
+        "[Failure: comparison generation fails] Offer retry or reselection",
         "return"
       ]
+    ],
+    "branches": [
+      {
+        "title": "Fewer than two completed scenarios",
+        "messages": [
+          [2, 1, "Report that at least two scenarios are required", "return"],
+          [1, 0, "Prompt operator to run another simulation or leave", "return"]
+        ]
+      },
+      {
+        "title": "Selected result unavailable",
+        "messages": [
+          [3, 2, "Return unavailable-result status", "return"],
+          [2, 1, "Identify unavailable scenario", "return"],
+          [1, 0, "Ask operator to choose another result", "return"],
+          [0, 1, "Select replacement scenario", "call"],
+          [1, 2, "Submit revised selection for validation", "call"]
+        ]
+      },
+      {
+        "title": "Comparison generation fails",
+        "messages": [
+          [2, 2, "Comparison generation error", "self"],
+          [2, 1, "Return error; do not present partial comparison", "return"],
+          [1, 0, "Show error and offer retry or reselection", "return"]
+        ]
+      }
     ]
   },
   "state": {
@@ -159,8 +246,8 @@ window.SMART_MOBILITY_UCS.push({
     ],
     "events": [
       "Select scenarios",
-      "At least two comparable results",
-      "Comparison generated"
+      "Comparison generated from valid comparable results",
+      "Operator reviews comparison"
     ],
     "branches": [
       {
