@@ -106,6 +106,12 @@ window.SMART_MOBILITY_UCS.push({
         "return"
       ],
       [
+        1,
+        0,
+        "Display scenario list to operator",
+        "return"
+      ],
+      [
         2,
         1,
         "[Failure: fewer than two completed scenarios] Report that more are needed",
@@ -131,20 +137,20 @@ window.SMART_MOBILITY_UCS.push({
       ],
       [
         2,
+        1,
+        "[Failure: fewer than two selected] Explain comparison needs at least two results",
+        "return"
+      ],
+      [
+        2,
         3,
-        "Verify results and comparability",
+        "[If two or more scenarios are selected] Verify results and comparability",
         "call"
       ],
       [
         3,
         2,
-        "Return validation result",
-        "return"
-      ],
-      [
-        2,
-        1,
-        "[Failure: fewer than two selected] Explain comparison needs at least two results",
+        "[If all selected results are available] Return validation result",
         "return"
       ],
       [
@@ -166,34 +172,22 @@ window.SMART_MOBILITY_UCS.push({
         "return"
       ],
       [
-        0,
-        1,
-        "[Alternative E1 recovery] Select replacement scenario",
-        "call"
-      ],
-      [
-        1,
-        2,
-        "[Alternative E1 recovery] Submit revised selection",
-        "call"
-      ],
-      [
-        2,
-        3,
-        "[Alternative E1 recovery] Revalidate result availability and comparability",
-        "call"
-      ],
-      [
-        3,
-        2,
-        "[Alternative E1 recovery] Return replacement result",
-        "return"
-      ],
-      [
         2,
         2,
         "[If selected results are comparable] Compute side-by-side impact comparison",
         "self"
+      ],
+      [
+        2,
+        1,
+        "[If comparison succeeds] Display comparative impacts and recommendations",
+        "return"
+      ],
+      [
+        1,
+        0,
+        "[If comparison succeeds] Show comparison for review",
+        "return"
       ],
       [
         2,
@@ -211,60 +205,6 @@ window.SMART_MOBILITY_UCS.push({
         1,
         0,
         "[Failure: comparison generation fails] Offer retry or reselection",
-        "return"
-      ],
-      [
-        2,
-        1,
-        "[If comparison succeeds] Display comparative impacts and recommendations",
-        "return"
-      ],
-      [
-        1,
-        0,
-        "[If comparison succeeds] Show comparison for review",
-        "return"
-      ],
-      [
-        0,
-        1,
-        "[Alternative A2] Select a different scenario combination",
-        "call"
-      ],
-      [
-        1,
-        2,
-        "[Alternative A2] Submit revised scenario IDs",
-        "call"
-      ],
-      [
-        2,
-        3,
-        "[Alternative A2] Revalidate revised scenarios",
-        "call"
-      ],
-      [
-        3,
-        2,
-        "[Alternative A2] Return revised comparable results",
-        "return"
-      ],
-      [
-        2,
-        2,
-        "[Alternative A2] Refresh side-by-side comparison",
-        "self"
-      ],
-      [
-        2,
-        1,
-        "[Alternative A2] Display refreshed comparison",
-        "return"
-      ],
-      [
-        1,
-        0,
-        "[Alternative A2] Show updated comparison",
         "return"
       ]
     ],

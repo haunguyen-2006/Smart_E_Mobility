@@ -153,6 +153,40 @@ window.SmartMobilityRenderers.renderSequence = (() => {
         branchActivations.push({ ...active, end: lastY, at: lastY });
       });
 
+      // Keep the comparison-generation failure interaction continuous across
+      // its self-error, UI report, and retry prompt messages.
+      const failSelfIndex = messages.findIndex(m => String(m[2]).startsWith("[Failure: comparison generation fails] Return comparison error"));
+      const failReportIndex = messages.findIndex(m => String(m[2]).startsWith("[Failure: comparison generation fails] Report error"));
+      const failOfferIndex = messages.findIndex(m => String(m[2]).startsWith("[Failure: comparison generation fails] Offer retry"));
+      if (failSelfIndex >= 0 && failReportIndex >= 0 && failOfferIndex >= 0) {
+        const selfY = top + failSelfIndex * rowH + lineOffset;
+        const reportY = top + failReportIndex * rowH + lineOffset;
+        const offerY = top + failOfferIndex * rowH + lineOffset;
+        const computeIndex = messages.findIndex(m => String(m[2]).startsWith("[If selected results are comparable] Compute side-by-side impact"));
+        const showIndex = messages.findIndex(m => String(m[2]).startsWith("[If comparison succeeds] Show comparison for review"));
+        const computeY = computeIndex >= 0 ? top + computeIndex * rowH + lineOffset : selfY;
+        const showY = showIndex >= 0 ? top + showIndex * rowH + lineOffset : reportY;
+
+        // Keep the Comparison Service and Simulation UI activations continuous
+        // across the success path and the comparison-generation failure path.
+        const serviceActivation = activations.find(a => !a.self && a.participant === 2 && a.start <= computeY && a.end >= computeY);
+        if (serviceActivation) serviceActivation.end = Math.max(serviceActivation.end, reportY + 14);
+        const computeSelfActivation = activations.find(a => a.self && a.participant === 2 && a.start <= computeY && a.end >= computeY);
+        if (computeSelfActivation) computeSelfActivation.end = Math.max(computeSelfActivation.end, selfY + 20);
+        const uiActivation = activations.find(a => !a.self && a.participant === 1 && a.start <= showY && a.end >= showY);
+        if (uiActivation) uiActivation.end = Math.max(uiActivation.end, offerY + 14);
+
+        for (let i = branchActivations.length - 1; i >= 0; i--) {
+          const active = branchActivations[i];
+          if ((active.participant === 1 || active.participant === 2) && active.at >= selfY && active.at <= offerY) {
+            branchActivations.splice(i, 1);
+          }
+        }
+        branchActivations.push({ participant: 2, start: selfY - 8, end: reportY + 14, at: selfY });
+        branchActivations.push({ participant: 2, start: selfY - 8, end: selfY + 20, self: true, at: selfY });
+        branchActivations.push({ participant: 1, start: reportY - 8, end: offerY + 14, at: reportY });
+      }
+
       // Apply each branch activation only where the main path has no bar.
       branchActivations.forEach(active => {
         const alreadyActive = activations.some(existing =>
@@ -162,6 +196,18 @@ window.SmartMobilityRenderers.renderSequence = (() => {
         );
         if (!alreadyActive) activations.push(active);
       });
+    }
+
+    // Keep the actor/operator active for the full interaction span in every
+    // use case, from their first message through their final message.
+    const actorMessageRows = messages
+      .map((message, i) => ({ message, i }))
+      .filter(({ message }) => message[0] === 0 || message[1] === 0)
+      .map(({ i }) => i);
+    if (actorMessageRows.length) {
+      const actorStart = top + Math.min(...actorMessageRows) * rowH + lineOffset - 8;
+      const actorEnd = Math.min(top + Math.max(...actorMessageRows) * rowH + lineOffset + 14, H - 36);
+      activations.push({ participant: 0, start: actorStart, end: actorEnd, actor: true });
     }
 
     let out = `<rect x="0" y="0" width="${W}" height="${H}" rx="13" fill="#fff"/>
