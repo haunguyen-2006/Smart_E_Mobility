@@ -49,13 +49,22 @@ window.SmartMobilityRenderers.renderActivity = (() => {
     const decisionIndex = Number.isInteger(flow.decisionIndex)
       ? flow.decisionIndex
       : -1;
+    const secondaryDecisionIndex = Number.isInteger(flow.secondaryDecisionIndex)
+      ? flow.secondaryDecisionIndex
+      : -1;
 
     const retryFlows = {
       "UC-020": { retryIndex: 2, errorText: "The system shows the operator which inputs need correction." },
       "UC-021": { retryIndex: 2, errorText: "The system identifies missing or unavailable scenarios for reselection." },
-      "UC-022": { retryIndex: 2, errorText: "The system reports that the recommendation is no longer feasible." }
+      "UC-022": {
+        retryIndex: 2,
+        errorText: "The system does not apply the recommendation and tells the operator to review it or simulate again. The operator may select another recommendation or return to the results."
+      }
     };
     const retryFlow = retryFlows[u.id];
+    const secondaryRetryFlow = flow.secondaryDecisionText && flow.secondaryErrorText
+      ? { retryIndex: flow.secondaryRetryIndex, errorText: flow.secondaryErrorText }
+      : null;
 
     const heights = flowSteps.map(st => {
       const lines = wrapAllWords(st.text, 88);
@@ -66,6 +75,7 @@ window.SmartMobilityRenderers.renderActivity = (() => {
     const positions = [];
     let cursor = top;
     let decision = null;
+    let secondaryDecision = null;
 
     for (let i = 0; i < flowSteps.length; i++) {
       positions.push({
@@ -84,6 +94,14 @@ window.SmartMobilityRenderers.renderActivity = (() => {
         };
 
         cursor = decision.cy + decision.halfH + decisionExitGap;
+      } else if (i === secondaryDecisionIndex) {
+        secondaryDecision = {
+          cy: cursor + decisionLeadGap + 39,
+          halfW: 145,
+          halfH: 39
+        };
+
+        cursor = secondaryDecision.cy + secondaryDecision.halfH + decisionExitGap;
       } else if (i < flowSteps.length - 1) {
         cursor += nodeGap;
       }
@@ -98,10 +116,27 @@ window.SmartMobilityRenderers.renderActivity = (() => {
       ? decision.cy - errorH / 2
       : 0;
 
+    const secondaryErrorLines = secondaryRetryFlow
+      ? wrapAllWords(secondaryRetryFlow.errorText, 38)
+      : [];
+    const secondaryErrorH = secondaryRetryFlow
+      ? Math.max(78, 26 + secondaryErrorLines.length * 17)
+      : 0;
+    const secondaryRetryTarget = secondaryRetryFlow
+      ? positions[secondaryRetryFlow.retryIndex]
+      : null;
+    const secondaryErrorY = secondaryRetryFlow && secondaryDecision
+      ? secondaryDecision.cy - secondaryErrorH / 2
+      : 0;
+
     const last = positions[positions.length - 1];
 
     const endY = last.y + last.h + 42;
-    const mainBottom = Math.max(endY + 34, retryFlow ? errorY + errorH + 28 : 0);
+    const mainBottom = Math.max(
+      endY + 34,
+      retryFlow ? errorY + errorH + 28 : 0,
+      secondaryRetryFlow ? secondaryErrorY + secondaryErrorH + 28 : 0
+    );
 
     // Alternative and exception cards.
     const inner = 24;
@@ -391,6 +426,19 @@ window.SmartMobilityRenderers.renderActivity = (() => {
           });
         }
 
+      } else if (i === secondaryDecisionIndex && secondaryDecision) {
+        const dTop = secondaryDecision.cy - secondaryDecision.halfH;
+        out += `<path d="M${center} ${bottom} V${dTop}" stroke="#637b9c" stroke-width="1.8" fill="none" marker-end="url(#arrCall)"/>`;
+        out += `<polygon points="${center},${dTop} ${center + secondaryDecision.halfW},${secondaryDecision.cy} ${center},${secondaryDecision.cy + secondaryDecision.halfH} ${center - secondaryDecision.halfW},${secondaryDecision.cy}" fill="#fff8e8" stroke="#b98738" stroke-width="1.8"/>`;
+        out += svgTextCentered(center - secondaryDecision.halfW - 22, secondaryDecision.cy, flow.secondaryDecisionText, {
+          anchor: "end", size: 11.5, weight: 850, fill: "#78531d", max: 30, lineH: 14.5
+        });
+
+        const next = positions[i + 1];
+        if (next) {
+          out += `<path d="M${center} ${secondaryDecision.cy + secondaryDecision.halfH} V${next.y}" stroke="#477f62" stroke-width="1.9" fill="none" marker-end="url(#arrCall)"/>`;
+          out += `<text x="${center + 18}" y="${secondaryDecision.cy + secondaryDecision.halfH + 30}" font-size="10.8" font-weight="850" fill="#39734f">YES / started</text>`;
+        }
       } else if (i < flowSteps.length - 1) {
         const next = positions[i + 1];
 
@@ -431,6 +479,27 @@ window.SmartMobilityRenderers.renderActivity = (() => {
         <path d="M${returnX} ${errorY} V${targetCenterY} H${nodeX + nodeW}"
           stroke="#b77724" stroke-width="1.8" stroke-dasharray="7 5" fill="none" marker-end="url(#arrBranch)"/>
       `;
+    }
+
+    if (secondaryRetryFlow && secondaryDecision && secondaryRetryTarget) {
+      const rightVertex = center + secondaryDecision.halfW;
+      const errorCenterY = secondaryErrorY + secondaryErrorH / 2;
+      const turnX = errorX - 18;
+      const returnX = errorX + errorW / 2;
+      const targetCenterY = secondaryRetryTarget.y + secondaryRetryTarget.h / 2;
+
+      out += `
+        <path d="M${rightVertex} ${secondaryDecision.cy} H${turnX} V${errorCenterY} H${errorX}"
+          stroke="#637b9c" stroke-width="1.8" fill="none" marker-end="url(#arrCall)"/>
+        <text x="${rightVertex + 18}" y="${secondaryDecision.cy - 12}" font-size="10.8" font-weight="850" fill="#9a5838">NO / failed</text>
+        <rect x="${errorX}" y="${secondaryErrorY}" width="${errorW}" height="${secondaryErrorH}"
+          rx="12" fill="#fff0f2" stroke="#d99aa5" stroke-width="1.5"/>
+      `;
+      out += svgTextCentered(errorX + errorW / 2, errorCenterY, secondaryRetryFlow.errorText, {
+        size: 12, weight: 700, fill: "#87414d", max: 37, lineH: 15
+      });
+      out += `<path d="M${returnX} ${secondaryErrorY} V${targetCenterY} H${nodeX + nodeW}"
+        stroke="#b77724" stroke-width="1.8" stroke-dasharray="7 5" fill="none" marker-end="url(#arrBranch)"/>`;
     }
 
     // Final node.

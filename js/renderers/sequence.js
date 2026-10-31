@@ -29,9 +29,11 @@ window.SmartMobilityRenderers.renderSequence = (() => {
     const cardY = 32;
     const cardH = 72;
     const top = 130;
-    const rowH = 78;
+    const expandedLabels = u.id === "UC-021" || u.id === "UC-022";
+    const rowH = expandedLabels ? 100 : 78;
     const H = top + messages.length * rowH + 48;
-    const lineOffset = 58;
+    const lineOffset = expandedLabels ? 86 : 58;
+    const maxMessageLines = expandedLabels ? 5 : 3;
     const cardHalf = cardWidth / 2;
     const showActivations = true;
 
@@ -252,7 +254,7 @@ window.SmartMobilityRenderers.renderSequence = (() => {
         const labelWidth = 205;
         const placeRight = fromIndex < parts.length - 1;
         const labelX = placeRight ? from + 61 : from - 61 - labelWidth;
-        const lines = labelLines(label, 25, 3);
+        const lines = labelLines(label, 25, maxMessageLines);
         const boxH = Math.max(25, lines.length * 13 + 10);
         const boxY = rowY + 5;
         out += `<path d="M${loopStart} ${lineY} H${loopEnd} V${lineY + 13} H${loopReturnX}" fill="none" stroke="#365b91" stroke-width="1.7" marker-end="url(#arrCall)"/>`;
@@ -270,7 +272,7 @@ window.SmartMobilityRenderers.renderSequence = (() => {
         const available = Math.max(112, Math.abs(ex - sx) - 12);
         const labelWidth = Math.min(330, available);
         const maxChars = Math.max(17, Math.min(29, Math.floor((labelWidth - 18) / 6.1)));
-        const lines = labelLines(label, maxChars, 3);
+        const lines = labelLines(label, maxChars, maxMessageLines);
         const boxH = Math.max(25, lines.length * 13 + 10);
         const boxY = rowY + 5;
         out += `<rect x="${mid - labelWidth / 2}" y="${boxY}" width="${labelWidth}" height="${boxH}" rx="6" fill="#fff" stroke="#e2e9f3" stroke-width="1"/>`;

@@ -132,13 +132,31 @@ window.SMART_MOBILITY_UCS.push({
       [
         3,
         2,
-        "Return feasibility result",
+        "[Failure: current network state changed] Return recommendation no longer feasible",
         "return"
       ],
       [
         2,
         1,
-        "Display validation result",
+        "[Failure: current network state changed] Do not apply; require review or a new simulation",
+        "return"
+      ],
+      [
+        1,
+        0,
+        "[Failure: current network state changed] Offer another recommendation or return to results",
+        "return"
+      ],
+      [
+        3,
+        2,
+        "[If current conditions still support the recommendation] Return feasibility result",
+        "return"
+      ],
+      [
+        2,
+        1,
+        "[If recommendation remains feasible] Display validation result",
         "return"
       ],
       [
@@ -162,13 +180,31 @@ window.SMART_MOBILITY_UCS.push({
       [
         4,
         2,
-        "Return initiation/status information",
+        "[Failure: workflow cannot be initiated] Return workflow initiation error",
         "return"
       ],
       [
         2,
         1,
-        "Display recommendation status and next action",
+        "[Failure: workflow cannot be initiated] Show error; do not report recommendation as applied",
+        "return"
+      ],
+      [
+        1,
+        0,
+        "[Failure: workflow cannot be initiated] Offer retry or coordinate an alternative action",
+        "return"
+      ],
+      [
+        4,
+        2,
+        "[If workflow starts] Return initiation/status information",
+        "return"
+      ],
+      [
+        2,
+        1,
+        "[If workflow starts] Display recommendation status and next action",
         "return"
       ],
       [
