@@ -18,6 +18,12 @@ const activityFlowOverrides = {
     insertAfter: {5: "The system records the valid charging demand for smart-schedule processing."},
     decisionIndex: 5,
     decisionText: "Is the charging request valid and feasible?"
+  },
+  "UC-022": {
+    secondaryDecisionIndex: 5,
+    secondaryDecisionText: "Did the operational workflow start?",
+    secondaryRetryIndex: 5,
+    secondaryErrorText: "The system shows an error, does not report the recommendation as applied, and allows retry or coordination of an alternative action."
   }
 };
 function activityFlow(u){
@@ -29,7 +35,15 @@ function activityFlow(u){
     if(model.insertAfter && Object.prototype.hasOwnProperty.call(model.insertAfter,i))
       steps.push({n:steps.length+1,text:model.insertAfter[i],activityInserted:true});
   });
-  return {steps,decisionIndex:model.decisionIndex,decisionText:model.decisionText};
+  return {
+    steps,
+    decisionIndex:model.decisionIndex ?? u.decisionIndex,
+    decisionText:model.decisionText ?? u.decisionText,
+    secondaryDecisionIndex:model.secondaryDecisionIndex,
+    secondaryDecisionText:model.secondaryDecisionText,
+    secondaryRetryIndex:model.secondaryRetryIndex,
+    secondaryErrorText:model.secondaryErrorText
+  };
 }
   return { activityFlow };
 })();
